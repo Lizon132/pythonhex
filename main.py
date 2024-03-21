@@ -26,7 +26,6 @@ class ProfileRowUI:
     def confirm_delete(self, on_delete):
         if messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this row?"):
             on_delete()
-            self.frame.destroy()
 
     def pack(self, **kwargs):
         self.frame.pack(**kwargs)
@@ -67,27 +66,26 @@ class HexProfileApp:
         self.add_row_button.grid(row=0, column=4)
 
     def add_new_row_ui(self):
-    # Function to add a new row to the UI
-    data = {
-        "byte_range": self.new_byte_range.get(),
-        "parameter": self.new_parameter.get(),
-        "units": self.new_units.get(),
-        "data_type": self.new_data_type.get()
-    }
-    row_ui = ProfileRowUI(self.profile_frame, **data, on_delete=lambda ui=row_ui: self.delete_row_ui(ui))
-    row_ui.pack(fill=tk.X, pady=2)
-    self.row_uis.append(row_ui)
+        # Function to add a new row to the UI
+        data = {
+            "byte_range": self.new_byte_range.get(),
+            "parameter": self.new_parameter.get(),
+            "units": self.new_units.get(),
+            "data_type": self.new_data_type.get()
+        }
+        row_ui = ProfileRowUI(self.profile_frame, **data, on_delete=lambda ui=row_ui: self.delete_row_ui(row_ui))
+        row_ui.pack(fill=tk.X, pady=2)
+        self.row_uis.append(row_ui)
 
-    # Clear input fields
-    self.new_byte_range.delete(0, tk.END)
-    self.new_parameter.delete(0, tk.END)
-    self.new_units.delete(0, tk.END)
-    self.new_data_type.delete(0, tk.END)
+        # Clear input fields
+        self.new_byte_range.delete(0, tk.END)
+        self.new_parameter.delete(0, tk.END)
+        self.new_units.delete(0, tk.END)
+        self.new_data_type.delete(0, tk.END)
 
-def delete_row_ui(self, ui):
-    self.row_uis.remove(ui)
-    ui.frame.destroy()
-
+    def delete_row_ui(self, ui):
+        self.row_uis.remove(ui)
+        ui.frame.destroy()
 
 def main():
     root = tk.Tk()
