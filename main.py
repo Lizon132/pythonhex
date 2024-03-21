@@ -1,70 +1,88 @@
 import tkinter as tk
-from tkinter import filedialog
-from profile import Profile  # Assuming profile.py contains the Profile class
+from tkinter import messagebox
+
+class ProfileRowUI:
+    def __init__(self, master, byte_range="", parameter="", units="", data_type="", on_delete=lambda: None):
+        self.master = master
+        self.frame = tk.Frame(master, borderwidth=1, relief="solid")
+
+        self.byte_range_var = tk.StringVar(value=byte_range)
+        self.parameter_var = tk.StringVar(value=parameter)
+        self.units_var = tk.StringVar(value=units)
+        self.data_type_var = tk.StringVar(value=data_type)
+
+        self.byte_range_entry = tk.Entry(self.frame, textvariable=self.byte_range_var, width=10)
+        self.byte_range_entry.grid(row=0, column=0)
+        self.parameter_entry = tk.Entry(self.frame, textvariable=self.parameter_var, width=15)
+        self.parameter_entry.grid(row=0, column=1)
+        self.units_entry = tk.Entry(self.frame, textvariable=self.units_var, width=10)
+        self.units_entry.grid(row=0, column=2)
+        self.data_type_entry = tk.Entry(self.frame, textvariable=self.data_type_var, width=10)
+        self.data_type_entry.grid(row=0, column=3)
+
+        self.delete_button = tk.Button(self.frame, text="-", command=lambda: self.confirm_delete(on_delete))
+        self.delete_button.grid(row=0, column=4)
+
+    def confirm_delete(self, on_delete):
+        if messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this row?"):
+            on_delete()
+            self.frame.destroy()
+
+    def pack(self, **kwargs):
+        self.frame.pack(**kwargs)
+
+    def get_data(self):
+        return {
+            "byte_range": self.byte_range_var.get(),
+            "parameter": self.parameter_var.get(),
+            "units": self.units_var.get(),
+            "data_type": self.data_type_var.get()
+        }
 
 class HexProfileApp:
     def __init__(self, master):
         self.master = master
         master.title("Hex Data Profile App")
 
-        # Hex Input Section
-        self.hex_input_label = tk.Label(master, text="Hex Input:")
-        self.hex_input_label.pack()
+        # Row management section
+        self.profile_frame = tk.Frame(master)
+        self.profile_frame.pack(fill=tk.X)
 
-        self.hex_input_text = tk.Text(master, height=5, width=50)
-        self.hex_input_text.pack()
+        self.row_uis = []  # List to keep track of row UI elements
 
-        # Profile Row Management Section
-        self.profile_label = tk.Label(master, text="Profile Row:")
-        self.profile_label.pack()
+        # Inputs for adding a new row
+        self.new_row_frame = tk.Frame(master)
+        self.new_row_frame.pack(fill=tk.X, pady=10)
 
-        self.byte_range_entry = tk.Entry(master)
-        self.byte_range_entry.pack()
-        self.byte_range_entry.insert(0, "Byte Range")
+        self.new_byte_range = tk.Entry(self.new_row_frame, width=10)
+        self.new_byte_range.grid(row=0, column=0)
+        self.new_parameter = tk.Entry(self.new_row_frame, width=15)
+        self.new_parameter.grid(row=0, column=1)
+        self.new_units = tk.Entry(self.new_row_frame, width=10)
+        self.new_units.grid(row=0, column=2)
+        self.new_data_type = tk.Entry(self.new_row_frame, width=10)
+        self.new_data_type.grid(row=0, column=3)
 
-        self.parameter_entry = tk.Entry(master)
-        self.parameter_entry.pack()
-        self.parameter_entry.insert(0, "Parameter")
+        self.add_row_button = tk.Button(self.new_row_frame, text="+", command=self.add_new_row_ui)
+        self.add_row_button.grid(row=0, column=4)
 
-        self.units_entry = tk.Entry(master)
-        self.units_entry.pack()
-        self.units_entry.insert(0, "Units")
+    def add_new_row_ui(self):
+        # Function to add a new row to the UI
+        data = {
+            "byte_range": self.new_byte_range.get(),
+            "parameter": self.new_parameter.get(),
+            "units": self.new_units.get(),
+            "data_type": self.new_data_type.get()
+        }
+        row_ui = ProfileRowUI(self.profile_frame, **data, on_delete=lambda ui=row_ui: self.row_uis.remove(ui))
+        row_ui.pack(fill=tk.X, pady=2)
+        self.row_uis.append(row_ui)
 
-        self.data_type_entry = tk.Entry(master)
-        self.data_type_entry.pack()
-        self.data_type_entry.insert(0, "Data Type")
-
-        self.add_row_button = tk.Button(master, text="Add Row", command=self.add_row)
-        self.add_row_button.pack()
-
-        # Save/Load Profile
-        self.save_profile_button = tk.Button(master, text="Save Profile", command=self.save_profile)
-        self.save_profile_button.pack()
-
-        self.load_profile_button = tk.Button(master, text="Load Profile", command=self.load_profile)
-        self.load_profile_button.pack()
-
-        # Results Display Section
-        self.results_label = tk.Label(master, text="Results:")
-        self.results_label.pack()
-
-        self.results_text = tk.Text(master, height=10, width=50)
-        self.results_text.pack()
-
-        # Profile instance
-        self.profile = Profile()
-
-    def add_row(self):
-        # Add code to handle adding a row to the profile
-        pass
-
-    def save_profile(self):
-        # Add code to save the current profile to a file
-        pass
-
-    def load_profile(self):
-        # Add code to load a profile from a file
-        pass
+        # Clear input fields
+        self.new_byte_range.delete(0, tk.END)
+        self.new_parameter.delete(0, tk.END)
+        self.new_units.delete(0, tk.END)
+        self.new_data_type.delete(0, tk.END)
 
 def main():
     root = tk.Tk()
